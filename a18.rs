@@ -10,5 +10,23 @@
 // * Use a function to determine if a customer can make a restricted purchase
 // * Return a result from the function
 // * The Err variant should detail the reason why they cannot make a purchase
+struct CustomerInfo{
+    age: i32,
+}
 
-fn main() {}
+fn restricted_purchase(customer: &CustomerInfo) -> Result<String, String>{
+    if customer.age < 18 {
+        Err("I'm sorry, you are too young".to_owned())
+    }else{
+        Ok("Have a good day!".to_owned())
+    }
+}
+
+fn main() {
+    let cleitin = CustomerInfo{
+        age: 19,
+    };
+
+    let purchase = restricted_purchase(&cleitin);
+    println!("{:?}", purchase)
+}
