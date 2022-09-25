@@ -28,5 +28,62 @@
 //   the functionality for that menu in isolation.
 // * A vector is the easiest way to store the bills at stage 1, but a
 //   hashmap will be easier to work with at stages 2 and 3.
+use std::io;
 
-fn main() {}
+fn get_input() -> Option<String> {
+    let mut buffer = String::new();
+    while io::stdin().read_line(&mut buffer).is_err() {
+        println!("Please re-enter your data");
+    }
+    let input = buffer.trim().to_owned();
+    if let &input = "" {
+        None
+    }else {
+        Some(input)
+    }
+}
+
+enum MainMenu {
+    Add,
+    View,
+    Remove,
+    Update,
+    Total,
+}
+
+impl MainMenu {
+    fn input_string (input: &str) -> Option<MainMenu> {
+        match input {
+            "1" => Some(Self::Add),
+            "2" => Some(Self::View),
+            "3" => Some(Self::Remove),
+            "4" => Some(Self::Update),
+            "5" => Some(Self::Total),
+            _ => None,
+        }
+    }
+    fn show_menu() {
+        println!("\n=-=HELP BILL=-=\n
+                1> Add bill\n
+                2> View bills\n
+                3> Remove bill\n
+                4> Update bill\n
+                5> Bill total\n\n
+                Enter selection: ");
+    }
+}
+fn main() {
+    println!("Welcome! Please select an option below");
+    loop {
+        MainMenu::show_menu();
+        let input = get_input().expect("no data entered");
+        match MainMenu::input_string(input.as_str()) {
+            Some(MainMenu::Add) => (),
+            Some(MainMenu::View) => (),
+            Some(MainMenu::Remove) => (),
+            Some(MainMenu::Update) => (),
+            Some(MainMenu::Total) => (),
+            None => return,
+        };
+    }
+}
