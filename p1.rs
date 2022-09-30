@@ -28,7 +28,7 @@
 //   the functionality for that menu in isolation.
 // * A vector is the easiest way to store the bills at stage 1, but a
 //   hashmap will be easier to work with at stages 2 and 3.
-use std::io;
+use std::{io, collections::HashMap};
 
 fn get_input() -> Option<String> {
     let mut buffer = String::new();
@@ -76,7 +76,45 @@ mod menu {
         };
         let bill = Bill { name, amount };
         bills.add(bill);
-        println!("Bill added!")
+        println!(">>Bill added!")
+    }
+
+    pub fn remove_bill(bills: &mut Bills) {
+        for bill in bills.get_all(){
+            println!("{:?}", bill)
+        }
+        println!("Select bill to remove");
+
+        let name = match get_input() {
+            Some(name) => name,
+            None => return,
+        };
+        if bills.remove(&name) {
+            println!(">>Bill remove!");
+        }else {
+            println!(">>Bill not found...");
+        }
+    }
+
+    pub fn update_bill(bills: &mut Bills) {
+        for bill in bills.get_all() {
+            println!("{:?}", bill)
+        }
+
+        println!("Select bill to update");
+        let name = match get_input(){
+            Some(name) => name,
+            None => return,
+        };
+        let amount = match get_bill_amount(){
+            Some(amount) => amount,
+            None => return,
+        };
+        if bills.update(&name, amount){
+            println!(">>Updated!")
+        }else {
+            println!("Bill not found...");
+        }
     }
 
     pub fn view_bills(bills: &mut Bills) {
@@ -93,20 +131,34 @@ pub struct Bill {
 }
 
 pub struct Bills {
-    inner: Vec<Bill>
+    inner: HashMap<String, Bill>
 }
 
 impl Bills {
     fn new() -> Self{
-        Self { inner: vec![] }
+        Self { inner: HashMap::new()}
     }
 
     fn add(&mut self, bill: Bill){
-        self.inner.push(bill);
+        self.inner.insert(bill.name.to_string(), bill);
     }
 
     fn get_all(&self) -> Vec<&Bill>{
-        self.inner.iter().collect()
+        self.inner.values().collect()
+    }
+
+    fn remove(&mut self, name: &str) -> bool {
+        self.inner.remove(name).is_some()
+    }
+
+    fn update(&mut self, name: &str, amount: f64) -> bool {
+        match self.inner.get_mut(name){
+            Some(bill) => {
+                bill.amount = amount;
+                true
+            }
+            None => false
+        }
     }
 }
 
@@ -115,7 +167,7 @@ enum MainMenu {
     View,
     Remove,
     Update,
-    Total,
+    End,
 }
 
 impl MainMenu {
@@ -125,7 +177,7 @@ impl MainMenu {
             "2" => Some(Self::View),
             "3" => Some(Self::Remove),
             "4" => Some(Self::Update),
-            "5" => Some(Self::Total),
+            "5" => Some(Self::End),
             _ => None,
         }
     }
@@ -133,9 +185,9 @@ impl MainMenu {
         println!("\n=-=HELP BILL=-=\n");
         println!("1> Add bill");
         println!("2> View bills");
-        println!("3> Borrachar bill");
+        println!("3> remove bill");
         println!("4> Update bill");
-        println!("5> Bill total\n");
+        println!("5> End program\n");
         println!("Enter selection: ");
     }
 }
@@ -149,9 +201,9 @@ fn main() {
         match MainMenu::input_string(input.as_str()) {
             Some(MainMenu::Add) => menu::add_bill(&mut bills),
             Some(MainMenu::View) => menu::view_bills(&mut bills),
-            Some(MainMenu::Remove) => (),
-            Some(MainMenu::Update) => (),
-            Some(MainMenu::Total) => (),
+            Some(MainMenu::Remove) => menu::remove_bill(&mut bills),
+            Some(MainMenu::Update) => menu::update_bill(&mut bills),
+            Some(MainMenu::End) => break,
             None => return,
         };
     }
